@@ -1,0 +1,14 @@
+bin/
+obj/
+*.user
+*.suo
+*.pdb
+*.vs/
+.vscode/
+Dockerfile
+docker-compose.*
+.docker/
+*.log
+logs/
+.idea/
+*.nuget/packages/
