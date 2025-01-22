@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using FormulaOneDemo.Services;
+using FormulaOneDemo.Models;
+using Newtonsoft.Json;
 
 namespace FormulaOneDemo.Controllers;
 
@@ -9,39 +11,45 @@ public class RacesController : Controller
 {
     private readonly JolpicaApiService _jolpicaApiService;
 
-    // Constructor to inject the JolpicaApiService
     public RacesController(JolpicaApiService jolpicaApiService)
     {
         _jolpicaApiService = jolpicaApiService;
     }
 
-    // API endpoint to get race data for a specific season and round
+    // Show the form
     [HttpGet]
-    [Route("races/{season}/{round}")]
-    public async Task<IActionResult> GetRaceAsync(int season, int round)
+    public IActionResult Index()
+    {
+        return View();
+    }
+
+    // Handle form submission
+    [HttpGet]
+    [Route("races")]
+    public async Task<IActionResult> GetRaceAsync([FromQuery] int season, [FromQuery] int round)
     {
         try
         {
-            // Call the API service to get the race details
-            var jsonResponse = await _jolpicaApiService.GetRaceAsync(season, round);
-
-            if (string.IsNullOrEmpty(jsonResponse))
-            {
-                return Json(new { Error = "No data found for the given season and round." });
-            }
-
-            // Parse the JSON response for validation and debugging
-            var parsedJson = JToken.Parse(jsonResponse);
-            Console.WriteLine("Parsed JSON: " + parsedJson);
-
-            return Content(jsonResponse, "application/json"); // Return the raw JSON
+            var races = await _jolpicaApiService.GetRaceAsync(season, round);
+            return View("Index", races);
+        }
+        catch (HttpRequestException ex)
+        {
+            // Handle API-specific errors
+            ModelState.AddModelError("", $"API request failed: {ex.Message}");
+            return View("Index", new List<Race>());
+        }
+        catch (JsonException ex)
+        {
+            // Handle JSON parsing errors
+            ModelState.AddModelError("", $"Failed to parse race data: {ex.Message}");
+            return View("Index", new List<Race>());
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error in GetRaceAsync: {ex.Message}");
-            return StatusCode(500, new { Error = "Internal Server Error", Details = ex.Message });
+            // Handle unexpected errors
+            ModelState.AddModelError("", $"An unexpected error occurred: {ex.Message}");
+            return View("Index", new List<Race>());
         }
     }
-
-
 }

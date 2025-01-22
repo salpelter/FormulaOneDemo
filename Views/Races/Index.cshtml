@@ -1,0 +1,53 @@
+@model List<FormulaOneDemo.Models.Race>
+@{
+    ViewData["Title"] = "F1 Race Information";
+}
+
+<h1>F1 Race Information</h1>
+
+@if (ViewBag.Errors != null)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewBag.Errors)
+        {
+            <p>@error</p>
+        }
+    </div>
+}
+
+<form method="get" action="/races">
+    <div class="form-group">
+        <label for="season">Season:</label>
+        <input type="number" class="form-control" id="season" name="season" min="1950" max="2024" required />
+    </div>
+
+    <div class="form-group">
+        <label for="round">Round:</label>
+        <input type="number" class="form-control" id="round" name="round" min="1" max="24" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Get Race Info</button>
+</form>
+
+@if (Model != null && Model.Any())
+{
+    <div class="mt-4">
+        @foreach (var race in Model)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h3 class="card-title">@(race?.RaceName ?? "No race name")</h3>
+                    <p class="card-text">Date: @(race?.Date.ToString() ?? "No date")</p>
+                    @if (race?.RaceCircuit != null)
+                    {
+                        <p class="card-text">Circuit: @(race.RaceCircuit.CircuitName ?? "No circuit name")</p>
+                        @if (race.RaceCircuit.CircuitLocation != null)
+                        {
+                            <p class="card-text">Location: @(race.RaceCircuit.CircuitLocation.Locality ?? "No locality")</p>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

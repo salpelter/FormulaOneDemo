@@ -1,20 +1,21 @@
-using System.Net.Http;
-using System.Threading.Tasks;
+using FormulaOneDemo.Models;
+using Newtonsoft.Json;
 
 namespace FormulaOneDemo.Services;
 
 public class JolpicaApiService
 {
     private readonly HttpClient _httpClient;
+    private readonly RaceMappingService _mappingService;
 
-    public JolpicaApiService(HttpClient httpClient)
+    public JolpicaApiService(HttpClient httpClient, RaceMappingService mappingService)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://api.jolpi.ca/"); // Jolpica API Base URL
+        _mappingService = mappingService;
     }
 
     // Function to fetch race data for a specific season and round
-    public async Task<string> GetRaceAsync(int season, int round)
+    public async Task<List<Race>> GetRaceAsync(int season, int round)
     {
         try
         {
@@ -29,13 +30,20 @@ public class JolpicaApiService
             var rawJson = await response.Content.ReadAsStringAsync();
 
             Console.WriteLine("Raw API Response: " + rawJson); // Log for debugging
-            return rawJson;
+            return _mappingService.MapJsonToRaces(rawJson);
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new HttpRequestException($"Failed to fetch race data: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            // Specific exception for JSON parsing errors
+            throw new InvalidOperationException($"Failed to process race data: {ex.Message}", ex);
         }
         catch (Exception ex)
         {
-            // Log the error for debugging
-            Console.WriteLine($"Error in GetRaceAsync: {ex.Message}");
-            throw; // Rethrow for debugging
+            throw new Exception($"Error processing race data: {ex.Message}");
         }
     }
 
