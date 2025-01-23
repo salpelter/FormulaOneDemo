@@ -4,7 +4,6 @@ using FormulaOneDemo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient<JolpicaApiService>(client =>
 {
@@ -22,11 +21,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseRouting();
-app.UseAuthorization();
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();  // Instead of MapStaticAssets
 app.UseRouting();
 app.UseAuthorization();
 
