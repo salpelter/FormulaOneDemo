@@ -18,7 +18,7 @@
 <form method="get" action="/races">
     <div class="form-group">
         <label for="season">Season:</label>
-        <input type="number" class="form-control" id="season" name="season" min="1950" max="2024" required />
+        <input type="number" class="form-control" id="season" name="season" min="1950" max="@DateTime.UtcNow.Year" required />
     </div>
 
     <div class="form-group">
